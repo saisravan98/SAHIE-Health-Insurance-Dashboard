@@ -1,0 +1,5 @@
+__pycache__/
+.venv/
+raw_data/
+processed_sahie.csv
+*.tmp

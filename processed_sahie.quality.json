@@ -1,0 +1,31 @@
+{
+  "sources": [
+    {
+      "file": "sahie_2018.xlsx",
+      "rows": 320198,
+      "excluded": 100
+    },
+    {
+      "file": "sahie_2019.xlsx",
+      "rows": 320202,
+      "excluded": 96
+    },
+    {
+      "file": "sahie_2020.xlsx",
+      "rows": 320296,
+      "excluded": 98
+    },
+    {
+      "file": "sahie_2021.xlsx",
+      "rows": 338648,
+      "excluded": 106
+    },
+    {
+      "file": "sahie_2022.xlsx",
+      "rows": 338729,
+      "excluded": 121
+    }
+  ],
+  "rows_written": 1638073,
+  "excluded_missing_estimates": 521
+}
