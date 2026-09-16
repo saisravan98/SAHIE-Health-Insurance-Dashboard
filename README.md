@@ -1,64 +1,50 @@
-# Health insurance coverage across US counties
+# Public Health Insurance Demographic & Trend Dashboard
 
-An academic data analysis project using U.S. Census Bureau Small Area Health Insurance Estimates (SAHIE) for 2018–2022. The Streamlit dashboard explores annual uninsured rates, county rankings, and demographic differences.
+An end-to-end data analytics and visualization platform built with **Python**, **Pandas**, **Altair**, and **Streamlit** to explore 5 years of U.S. Census Bureau Small Area Health Insurance Estimates (SAHIE) across all U.S. counties (2018–2022).
 
-Original team: Sai Sravan Chintala and Nikhilesh Katakam. Sai contributed to both code and analysis. The portfolio revision separates cohort selection and rate calculations from the UI, adds Excel ingestion and data-quality checks, and corrects filter and aggregation behavior. The revision is separate from the original academic submission.
+The application features an automated, validated ETL pipeline, population-weighted aggregation logic, and an interactive dashboard for county-level ranking and demographic disparity analysis.
 
-## Run locally
+---
 
-Requires Python 3.10 or newer.
+## 🚀 Key Features
 
+* **Automated & Validated ETL Pipeline:** Reads and parses multi-year Census SAHIE Excel workbooks, validates schema constraints, checks duplicate keys, filters out invalid/zero denominators, and generates a structured data-quality audit report (`processed_sahie.quality.json`).
+* **Population-Weighted Rate Calculations:** Calculates aggregate uninsured percentages as `100 * sum(NUI) / sum(NIPR)` rather than taking simple averages of row percentages, preventing smaller rural counties from skewing regional baselines.
+* **Granular Cohort Isolation:** Isolates discrete demographic groups (Age, Sex, Income-to-Poverty Ratio) to avoid double-counting overlapping categories across county lines.
+* **Interactive Visualization Suite:** 
+  * **Trend Analysis:** Multi-year longitudinal trajectories showing national and state uninsured rate shifts.
+  * **County Rankings:** Dynamic Top-N leaderboard highlighting high-risk and low-risk counties with 90% margin-of-error (`pctui_moe`) tracking.
+  * **Demographic Breakdowns:** Side-by-side disparity analysis across income tiers and age demographics.
+* **Data Export:** Built-in capability to export filtered cohort subsets directly to CSV.
+
+---
+
+## 🛠️ Architecture & Tech Stack
+
+* **Language:** Python 3.10+
+* **Data Engineering & Processing:** Pandas, NumPy
+* **Visualization:** Altair, Streamlit
+* **Quality Assurance & Testing:** Python `unittest` (regression and calculation checks)
+
+### File Structure
+
+| File | Description |
+| :--- | :--- |
+| `app.py` | Main Streamlit interface with interactive filters, visualization tabs, and data export. |
+| `analysis.py` | Core calculation engine handling cohort selection and population-weighted aggregations. |
+| `data_prep.py` | ETL script streaming raw Excel inputs, enforcing validation bounds, and writing clean data. |
+| `test_analysis.py` | Automated test suite verifying weighting math, edge-case filters, and geography mappings. |
+| `processed_sahie.quality.json` | Automated quality report detailing data integrity, excluded rows, and missing values. |
+| `requirements.txt` | Python package dependencies. |
+
+---
+
+## 💻 Local Setup & Execution
+
+### 1. Clone & Set Up Environment
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+git clone [https://github.com/saisravan98/SAHIE-Health-Insurance-Dashboard.git](https://github.com/saisravan98/SAHIE-Health-Insurance-Dashboard.git)
+cd SAHIE-Health-Insurance-Dashboard
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-python data_prep.py --input-dir raw_data
-streamlit run app.py
-```
-
-On Windows, activate with `.venv\Scripts\activate`. Put the supplied `sahie_2018.xlsx` through `sahie_2022.xlsx` exports in `raw_data/`. The parser detects the data header after the Census documentation rows. It reads the first worksheet and supports these Excel exports; it does not yet ingest Census ZIP, CSV or TXT downloads directly.
-
-The handoff ZIP includes `processed_sahie.csv` for immediate local use. Raw Excel inputs and the generated full CSV are excluded from Git by `.gitignore`. To rebuild from source, use the five original workbooks. The dataset is a historical 2018–2022 snapshot, not a live feed.
-
-## Data and methodology
-
-Source program: [U.S. Census Bureau SAHIE](https://www.census.gov/programs-surveys/sahie.html). Field definitions and the 90% margin-of-error convention were checked against documentation embedded in the supplied workbooks.
-
-- A record is one year, geographic area, and demographic combination. It is an aggregate estimate, not an individual person or medical record.
-- The dashboard uses county rows (`geocat=50`) and holds race at all races (`racecat=0`); race breakdowns are only available at state level in these files.
-- Each chart selects one age, sex, and income category before aggregating across counties. State totals and county detail are never combined.
-- Combined uninsured percentage is `100 * sum(NUI) / sum(NIPR)`. A simple mean of row percentages gives small populations the same weight as large populations and is not used for the combined rate.
-- Full state-plus-county FIPS identifiers distinguish counties sharing the same three-digit county code.
-- Demographic panels vary one category at a time while keeping the other filters fixed. Age and income categories overlap and must not be added together.
-- County rankings use published `PCTUI`; `pctui_moe` is the published 90% margin of error in percentage points. No aggregate confidence interval or significance claim is computed.
-
-Preparation validates required columns, years, duplicate keys, numeric bounds, and consistency between counts and published rounded percentages. Missing estimates, zero denominators, and unavailable Kalawao County estimates are excluded and counted in `processed_sahie.quality.json`. Invalid unexpected values fail the run; partial output does not replace an existing completed CSV.
-
-## Files
-
-| File | Purpose |
-|---|---|
-| `data_prep.py` | Stream Excel rows, validate observations, and write the CSV and quality report |
-| `analysis.py` | Select comparable cohorts and compute denominator-aware annual rates |
-| `app.py` | Streamlit filters, trend, county rankings, demographic comparisons, and CSV export |
-| `test_analysis.py` | Regression checks for weighted rates, geography, demographics, and empty selections |
-| `.github/workflows/checks.yml` | Proposed GitHub Actions test and syntax-check workflow |
-
-## Verification
-
-```bash
-python -m unittest -v
-python -m py_compile app.py analysis.py data_prep.py
-```
-
-The handoff verification record is in `VALIDATION.md`. A local test pass is not a GitHub Actions run or a deployed application.
-
-## Interpretation limits
-
-This project demonstrates data preparation, descriptive analysis, and visualization. It does not train a predictive model, implement MLOps, establish a causal effect of COVID-19, or evaluate statistical significance of differences. County boundaries can change across years, and a fixed FIPS selection can lose observations when geography definitions change. Reconcile boundaries before making longitudinal claims about fixed areas. Aggregate subgroup composition can also change over time.
-
-The original presentation's statements about correlation, pandemic impact, and overall improvements require re-analysis before reuse. Its claimed animation is not implemented in the supplied original app. The original deck is not included in this portfolio package.
-
-## Next work
-
-Add a tested CSV-download ingestion path and a small redistributable demo dataset, review the UI locally, and document one reproducible finding with its population definition and uncertainty. A predictive or causal extension should be a separately evaluated project with an appropriate baseline and validation design.
