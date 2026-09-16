@@ -49,3 +49,34 @@ python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
+
+### 2. Run the Dashboard
+Ensure `processed_sahie.csv` is present in the root directory, then run:
+```bash
+python3 -m streamlit run app.py
+```
+Open http://localhost:8501 in your browser.
+
+### 3. Rebuild Dataset from Raw Census Files (Optional)
+1. Place `sahie_2018.xlsx` through `sahie_2022.xlsx` in a `raw_data/` directory.
+2. Execute the preprocessing pipeline:
+```bash
+python3 data_prep.py --input-dir raw_data
+```
+
+---
+
+## 🧪 Testing & Verification
+
+Run the test suite to verify calculation accuracy and data validation:
+```bash
+python3 -m unittest test_analysis.py -v
+```
+
+---
+
+## 📊 Data Source & Methodology Notes
+
+* **Data Authority:** U.S. Census Bureau – Small Area Health Insurance Estimates (SAHIE).
+* **Geographic Resolution:** County level (`geocat=50`) using unified state-plus-county FIPS keys.
+* **Confidence Conventions:** Margin-of-error figures adhere to the Census Bureau's 90% confidence level standard.
