@@ -3,3 +3,4 @@ __pycache__/
 raw_data/
 processed_sahie.csv
 *.tmp
+.DS_Store
